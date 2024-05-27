@@ -1,6 +1,5 @@
 # TODO: Extrair para uma gem
 # TODO: Resolver para o caso de ordenação por colunas de tabelas associadas
-# frozen_string_literal: true
 
 # Adpta objeto json para hash de consulta compativél com o active_record
 ## Como usar
