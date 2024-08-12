@@ -12,6 +12,7 @@
 # ```
 # TODO: Extrair para uma gem
 # TODO: Resolver para o caso de ordenação por colunas de tabelas associadas
+require 'byebug'
 module JsonApiFilterAdapter
   VALUE = 1
   KEY = 0
@@ -57,17 +58,20 @@ module JsonApiFilterAdapter
       value_downcase = parameter[VALUE].to_s.downcase
 
       if value_downcase.include?('=like=')
-        conditional_operator = 'LIKE ?'
+        conditional_operator = ':value LIKE ?'
         parameter[VALUE] = "%#{parameter[VALUE]}%"
       elsif parameter[VALUE].to_s.include?('..')
-        conditional_operator = 'BETWEEN ? AND ?'
-      elsif parameter[VALUE].is_a?(Array)
-        conditional_operator = 'IN (?)'
+        conditional_operator = ':value BETWEEN ? AND ?'
+      elsif parameter[VALUE].is_a?(Array) & !value_downcase.include?('=null=')
+        conditional_operator = ':value IN (?)'
+      elsif parameter[VALUE].is_a?(Array) && value_downcase.include?('=null=')
+        parameter[VALUE] = parameter[VALUE].filter { |v| v != '=null=' }
+        conditional_operator = "(:value IS NULL OR :value IN (?))"
       elsif !parameter[VALUE].is_a?(Array) && value_downcase.include?('=null=')
         parameter[VALUE] = nil
-        conditional_operator = 'IS NULL'
+        conditional_operator = ':value IS NULL'
       else
-        conditional_operator = '= ?'
+        conditional_operator = ':value = ?'
       end
 
       # tratar operador de pesquisa
@@ -76,14 +80,15 @@ module JsonApiFilterAdapter
       # saber se esta no final da lista de parametros
       if cont < data.to_hash.size
         # se não tiver no final da lista
-        data_converted_header = data_converted_header + parameter[KEY] + " #{conditional_operator} #{query_conditional_operator} "
+        data_converted_header = data_converted_header + " " + "#{conditional_operator} #{query_conditional_operator}".gsub(":value", parameter[KEY])
         cont += 1
       else
         # se tiver no final da lista
-        data_converted_header = data_converted_header + parameter[KEY] + " #{conditional_operator} "
+        data_converted_header = data_converted_header + " " + "#{conditional_operator}".gsub(":value", parameter[KEY])
         cont += 1
       end
     end
+    data_converted_header.strip!
 
     # criar os demais elementos do vetor que faram referencia em ordem a cada um dos pontos de interrogação
     data.to_hash.each_value do |value|
@@ -110,7 +115,7 @@ module JsonApiFilterAdapter
         end
       end
       # tratando entradas que são array
-      data_converted_value << value.map { |v| v = nil if v == '=null=';v } if value.is_a?(Array)
+      data_converted_value << value.filter { |v| v != '=null=' } if value.is_a?(Array)
     end
 
     # montar array de busca , primeira posição string query , segunda posição ate N serão parametros
