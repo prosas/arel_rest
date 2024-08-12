@@ -12,7 +12,6 @@
 # ```
 # TODO: Extrair para uma gem
 # TODO: Resolver para o caso de ordenação por colunas de tabelas associadas
-require 'byebug'
 module JsonApiFilterAdapter
   VALUE = 1
   KEY = 0
