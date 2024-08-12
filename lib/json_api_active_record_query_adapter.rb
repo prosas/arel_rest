@@ -1,4 +1,3 @@
-# TODO: Extrair para uma gem
 # TODO: Resolver para o caso de ordenação por colunas de tabelas associadas
 
 # Adpta objeto json para hash de consulta compativél com o active_record
@@ -14,13 +13,15 @@
 # TODO: Extrair para uma gem
 # TODO: Resolver para o caso de ordenação por colunas de tabelas associadas
 module JsonApiFilterAdapter
+  VALUE = 1
+  KEY = 0
   # Adpta objeto jsonvpara hash de consulta compativél com o active_record
   # Ex:
   # >> object_json_api = "{id: 1, data: 01/01/2022..31/01/2022}"
   # >> adpter_from_json_api_to_active_record(object_json_api)
   # >> {"id": 1, "data": Range(Date.parse("01/01/2022"), Date.parse("31/01/2022"))}
   def parse_filter_adapter(data)
-    data = data_order_formater data, params
+    # data = data_order_formater data, params
 
     data_parsed = {}
     data.each do |parameter|
@@ -30,7 +31,7 @@ module JsonApiFilterAdapter
       first, last = parameter[VALUE].split('..')
       case parameter[VALUE]
       when /^\d{4}-\d{2}-\d{2}..\d{4}-\d{2}-\d{2}$/
-        data_parsed[parameter[KEY]] = generate_date_range(first, last)
+        data_parsed[parameter[KEY]] = Range.new(Date.parse(first), Date.parse(last))
       when /^\d+..\d+$/
         data_parsed[parameter[KEY]] = Range.new(first.to_i, last.to_i)
       when /^\d+.\d+..\d+.\d+$/
@@ -45,23 +46,6 @@ module JsonApiFilterAdapter
 
   private
 
-  def data_order_formater(data, params)
-    data_modificated = {}
-    if params['filter'].present?
-      params['filter'].each do |parameter|
-        data_modificated[parameter[KEY]] = parameter[VALUE] if data[parameter[KEY]].present?
-      end
-    else
-      data_modificated = data
-    end
-    data_modificated
-  end
-
-  def generate_date_range(first, last)
-    # (first..last).select { |d| valid_date?(d) }
-    Range.new(Date.parse(first), Date.parse(last))
-  end
-
   def operator_parser_hash_to_array(data)
     data_converted_value = []
     data_converted_header = ''
@@ -73,24 +57,21 @@ module JsonApiFilterAdapter
       value_downcase = parameter[VALUE].to_s.downcase
 
       if value_downcase.include?('=like=')
-        conditional_operator = 'LIKE ? '
+        conditional_operator = 'LIKE ?'
         parameter[VALUE] = "%#{parameter[VALUE]}%"
       elsif parameter[VALUE].to_s.include?('..')
-        conditional_operator = 'BETWEEN ? AND ? '
-      elsif parameter[VALUE].is_a?(Array) && !value_downcase.include?('=null=')
-        conditional_operator = ' IN (?) '
-      elsif parameter[VALUE].is_a?(Array) && value_downcase.include?('=null=')
-        parameter[VALUE] = parameter[VALUE].filter { |v| v != '=null=' }
-        conditional_operator = " IN (?) OR #{parameter[KEY]} IS NULL"
+        conditional_operator = 'BETWEEN ? AND ?'
+      elsif parameter[VALUE].is_a?(Array)
+        conditional_operator = 'IN (?)'
       elsif !parameter[VALUE].is_a?(Array) && value_downcase.include?('=null=')
         parameter[VALUE] = nil
-        conditional_operator = ' IS NULL'
+        conditional_operator = 'IS NULL'
       else
-        conditional_operator = '= ? '
+        conditional_operator = '= ?'
       end
 
       # tratar operador de pesquisa
-      query_conditional_operator = value_downcase.include?('=or=') ? ' OR' : ' AND'
+      query_conditional_operator = value_downcase.include?('=or=') ? 'OR' : 'AND'
       # criar a 1º string do vetor que carrega o corpo da pesquisa
       # saber se esta no final da lista de parametros
       if cont < data.to_hash.size
@@ -129,8 +110,9 @@ module JsonApiFilterAdapter
         end
       end
       # tratando entradas que são array
-      data_converted_value << value.filter { |v| v != '=null=' } if value.is_a?(Array)
+      data_converted_value << value.map { |v| v = nil if v == '=null=';v } if value.is_a?(Array)
     end
+
     # montar array de busca , primeira posição string query , segunda posição ate N serão parametros
     data_converted_value.unshift(data_converted_header)
     data_converted_value
