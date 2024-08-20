@@ -79,11 +79,11 @@ module JsonApiFilterAdapter
       # saber se esta no final da lista de parametros
       if cont < data.to_hash.size
         # se não tiver no final da lista
-        data_converted_header = data_converted_header + " " + "#{conditional_operator} #{query_conditional_operator}".gsub(":value", parameter[KEY])
+        data_converted_header = "#{data_converted_header} #{conditional_operator} #{query_conditional_operator}".gsub(":value", parameter[KEY])
         cont += 1
       else
         # se tiver no final da lista
-        data_converted_header = data_converted_header + " " + "#{conditional_operator}".gsub(":value", parameter[KEY])
+        data_converted_header = "#{data_converted_header} #{conditional_operator}".gsub(":value", parameter[KEY])
         cont += 1
       end
     end
