@@ -28,13 +28,23 @@ class JsonApiFilterAdapterTest < Minitest::Test
       ["row.colum1 < ?", "'2024-01-01 14:10'"]
   end
 
+  def test_lesser_equal_than_string
+    assert_equal @_class.parse_filter_adapter({"row.colum1" => "<= '2024-01-01 14:10'"}),
+      ["row.colum1 <= ?", "'2024-01-01 14:10'"]
+  end
+
   def test_greater_than_number
-    assert_equal @_class.parse_filter_adapter({"row.colum1" => "> 202"}) ,
+    assert_equal @_class.parse_filter_adapter({"row.colum1" => "> 202"}),
       ["row.colum1 > ?", "202"]
   end
 
   def test_greater_than_string
     assert_equal @_class.parse_filter_adapter({"row.colum1" => "> '2024-01-01 14:10'"}),
       ["row.colum1 > ?", "'2024-01-01 14:10'"]
+  end
+
+  def test_greater_equal_than_string
+    assert_equal @_class.parse_filter_adapter({"row.colum1" => ">= '2024-01-01 14:10'"}),
+      ["row.colum1 >= ?", "'2024-01-01 14:10'"]
   end
 end

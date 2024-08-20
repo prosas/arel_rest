@@ -46,6 +46,11 @@ module JsonApiFilterAdapter
 
   private
 
+  def direct_logic_operator(query)
+    operators_array = ['<=', '>=', '<', '>']
+    operators_array.detect { |op| query.to_s.include? op }
+  end
+
   def operator_parser_hash_to_array(data)
     data_converted_value = []
     data_converted_header = ''
@@ -69,12 +74,9 @@ module JsonApiFilterAdapter
       elsif !parameter[VALUE].is_a?(Array) && value_downcase.include?('=null=')
         parameter[VALUE] = nil
         conditional_operator = ':value IS NULL'
-      elsif parameter[VALUE].to_s.include?('<')
-        parameter[VALUE].gsub!("<", "").strip!
-        conditional_operator = ':value < ?'
-      elsif parameter[VALUE].to_s.include?('>')
-        parameter[VALUE].gsub!(">", "").strip!
-        conditional_operator = ':value > ?'
+      elsif operator = direct_logic_operator(parameter[VALUE])
+        parameter[VALUE].gsub!(operator, "").strip!
+        conditional_operator = ":value #{operator} ?"
       else
         conditional_operator = ':value = ?'
       end
