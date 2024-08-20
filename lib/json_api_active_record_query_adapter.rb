@@ -69,6 +69,12 @@ module JsonApiFilterAdapter
       elsif !parameter[VALUE].is_a?(Array) && value_downcase.include?('=null=')
         parameter[VALUE] = nil
         conditional_operator = ':value IS NULL'
+      elsif parameter[VALUE].to_s.include?('<')
+        parameter[VALUE].gsub!("<", "").strip!
+        conditional_operator = ':value < ?'
+      elsif parameter[VALUE].to_s.include?('>')
+        parameter[VALUE].gsub!(">", "").strip!
+        conditional_operator = ':value > ?'
       else
         conditional_operator = ':value = ?'
       end
