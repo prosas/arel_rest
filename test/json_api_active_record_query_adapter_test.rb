@@ -47,4 +47,14 @@ class JsonApiFilterAdapterTest < Minitest::Test
     assert_equal @_class.parse_filter_adapter({"row.colum1" => ">= '2024-01-01 14:10'"}),
       ["row.colum1 >= ?", "'2024-01-01 14:10'"]
   end
+
+  def test_range_with_dates
+    assert_equal @_class.parse_filter_adapter({"row.colum1" => "2024-01-01..2024-01-31"}),
+    ["row.colum1 BETWEEN ? AND ?", "2024-01-01", "2024-01-31"]
+  end
+  
+  def test_range_with_dates_and_times
+    assert_equal @_class.parse_filter_adapter({"row.colum1" => "2024-01-01 14:10..2024-01-01 16:00"}),
+      ["row.colum1 BETWEEN ? AND ?", "2024-01-01 14:10", "2024-01-01 16:00"]
+  end
 end

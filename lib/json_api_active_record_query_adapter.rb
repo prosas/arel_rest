@@ -1,3 +1,5 @@
+# Biblioteca nativa do Ruby para lidar com parsing e formatação de datas e horas, como Time.parse
+require 'time'
 # TODO: Resolver para o caso de ordenação por colunas de tabelas associadas
 
 # Adpta objeto json para hash de consulta compativél com o active_record
@@ -30,8 +32,10 @@ module JsonApiFilterAdapter
 
       first, last = parameter[VALUE].split('..')
       case parameter[VALUE]
-      when /^\d{4}-\d{2}-\d{2}..\d{4}-\d{2}-\d{2}$/
-        data_parsed[parameter[KEY]] = Range.new(Date.parse(first), Date.parse(last))
+      when /^\d{4}-\d{2}-\d{2}..\d{4}-\d{2}-\d{2}$/ # somente com data
+        data_parsed[parameter[KEY]] = Range.new(Time.parse(first), Time.parse(last))
+      when /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}..\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/ # com data e hora
+        data_parsed[parameter[KEY]] = Range.new(Time.parse(first), Time.parse(last))
       when /^\d+..\d+$/
         data_parsed[parameter[KEY]] = Range.new(first.to_i, last.to_i)
       when /^\d+.\d+..\d+.\d+$/
