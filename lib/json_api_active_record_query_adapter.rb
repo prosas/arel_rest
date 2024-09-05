@@ -1,3 +1,5 @@
+# Biblioteca nativa do Ruby para lidar com parsing e formatação de datas e horas, como Time.parse
+require 'time'
 # TODO: Resolver para o caso de ordenação por colunas de tabelas associadas
 
 # Adpta objeto json para hash de consulta compativél com o active_record
@@ -30,8 +32,10 @@ module JsonApiFilterAdapter
 
       first, last = parameter[VALUE].split('..')
       case parameter[VALUE]
-      when /^\d{4}-\d{2}-\d{2}..\d{4}-\d{2}-\d{2}$/
+      when /^\d{4}-\d{2}-\d{2}..\d{4}-\d{2}-\d{2}$/ # somente com data
         data_parsed[parameter[KEY]] = Range.new(Date.parse(first), Date.parse(last))
+      when /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}..\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/ # com data e hora
+        data_parsed[parameter[KEY]] = Range.new(Time.parse(first), Time.parse(last))
       when /^\d+..\d+$/
         data_parsed[parameter[KEY]] = Range.new(first.to_i, last.to_i)
       when /^\d+.\d+..\d+.\d+$/
@@ -39,7 +43,7 @@ module JsonApiFilterAdapter
       end
     end
 
-    data.merge(data_parsed)
+    data.merge!(data_parsed)
 
     operator_parser_hash_to_array data
   end
@@ -60,22 +64,21 @@ module JsonApiFilterAdapter
     data.each do |parameter|
       # tratar operador de comparação
       value_downcase = parameter[VALUE].to_s.downcase
-
       if value_downcase.include?('=like=')
         conditional_operator = ':value LIKE ?'
         parameter[VALUE] = "%#{parameter[VALUE]}%"
-      elsif parameter[VALUE].to_s.include?('..')
+      elsif parameter[VALUE].is_a?(Range)
         conditional_operator = ':value BETWEEN ? AND ?'
       elsif parameter[VALUE].is_a?(Array) & !value_downcase.include?('=null=')
         conditional_operator = ':value IN (?)'
       elsif parameter[VALUE].is_a?(Array) && value_downcase.include?('=null=')
         parameter[VALUE] = parameter[VALUE].filter { |v| v != '=null=' }
-        conditional_operator = "(:value IS NULL OR :value IN (?))"
+        conditional_operator = '(:value IS NULL OR :value IN (?))'
       elsif !parameter[VALUE].is_a?(Array) && value_downcase.include?('=null=')
         parameter[VALUE] = nil
         conditional_operator = ':value IS NULL'
       elsif operator = direct_logic_operator(parameter[VALUE])
-        parameter[VALUE].gsub!(operator, "").strip!
+        parameter[VALUE].gsub!(operator, '').strip!
         conditional_operator = ":value #{operator} ?"
       else
         conditional_operator = ':value = ?'
@@ -87,21 +90,21 @@ module JsonApiFilterAdapter
       # saber se esta no final da lista de parametros
       if cont < data.to_hash.size
         # se não tiver no final da lista
-        data_converted_header = "#{data_converted_header} #{conditional_operator} #{query_conditional_operator}".gsub(":value", parameter[KEY])
+        data_converted_header = "#{data_converted_header} #{conditional_operator} #{query_conditional_operator}".gsub(':value', parameter[KEY])
         cont += 1
       else
         # se tiver no final da lista
-        data_converted_header = "#{data_converted_header} #{conditional_operator}".gsub(":value", parameter[KEY])
+        data_converted_header = "#{data_converted_header} #{conditional_operator}".gsub(':value', parameter[KEY])
         cont += 1
       end
     end
+
     data_converted_header.strip!
 
     # criar os demais elementos do vetor que faram referencia em ordem a cada um dos pontos de interrogação
     data.to_hash.each_value do |value|
       # tratando entradas que não são arrays
       unless value.is_a?(Array)
-
         value_modificad = value.to_s.downcase
         # tratar like e or
         if value_modificad.include?('=like=')
@@ -113,12 +116,12 @@ module JsonApiFilterAdapter
           data_converted_value << value_modificad.to_bool
         elsif !value_modificad.include?('=null=')
           # tratar between
-          if value_modificad.include?('..')
-            first, last = value_modificad.split('..')
-            data_converted_value << first
-            data_converted_value << last
+          if value.is_a?(Range)
+            data_converted_value << value.first
+            data_converted_value << value.last
+          else
+            data_converted_value << value_modificad
           end
-          data_converted_value << value_modificad unless value_modificad.include?('..')
         end
       end
       # tratando entradas que são array
