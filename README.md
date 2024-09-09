@@ -33,6 +33,23 @@ def index
 end
 ```
 
+## About date filters and the use of `Time.use_zone` in the Code
+
+### `Time.use_zone(JsonApiFilterAdapter.time_zone) { }`:
+- **Purpose**: Temporarily changes the time zone to execute the code inside the block, using the configured time zone (`JsonApiFilterAdapter.time_zone`), ignoring the default time zone.
+- **Context**:
+- This is useful to ensure that date and time operations inside the block are interpreted in the configured time zone, without affecting the rest of the application.
+
+### Block in the code:
+- **Checks and converts date ranges**:
+- **Case with date**: If the value is just a date (`YYYY-MM-DD`), converts the range to the start and end of the day, respecting the configured time zone. - **Case with date and time**: If the value contains a date and time (`YYYY-MM-DD HH:MM..YYYY-MM-DD HH:MM`), process the interval according to the time, keeping the configured time zone.
+- **Case with explicit time zone**: If the value contains a date, time and an explicit time zone, the code processes the interval without modifying the explicit time zone.
+
+- **Ensures consistency**:
+- `Time.use_zone` ensures that all date and time values ​​are converted and handled in the correct time zone (`JsonApiFilterAdapter.time_zone`), regardless of the system's default time zone.
+
+
+
 ## How to test
 
 ```
