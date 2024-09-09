@@ -32,6 +32,18 @@ def index
   render json: @records
 end
 ```
+## Configuring Time Zone for JsonApiFilterAdapter
+
+To use the `time_zone` feature correctly after installing the gem, you need to create an initializer file and add the following configuration:
+
+```ruby
+# config/initializers/json_api_filter_adapter.rb
+
+# Sets the gem's timezone based on the Time.zone configured by the application
+Rails.application.config.after_initialize do
+  JsonApiFilterAdapter.time_zone = ActiveSupport::TimeZone['America/Sao_Paulo']
+end
+```
 
 ## About date filters and the use of `Time.use_zone` in the Code
 
