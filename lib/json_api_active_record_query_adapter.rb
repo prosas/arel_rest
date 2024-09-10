@@ -1,5 +1,4 @@
 # Biblioteca nativa do Ruby para lidar com parsing e formatação de datas e horas, como Time.parse
-require 'time'
 # TODO: Resolver para o caso de ordenação por colunas de tabelas associadas
 
 # Adpta objeto json para hash de consulta compativél com o active_record

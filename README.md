@@ -12,15 +12,16 @@ This project provides an adapter to transform filters from an API in JSON-API fo
 
 1. **Add the gem to your project:**
 
-   Run the following command to add the gem to your `Gemfile`:
+Run the following command to add the gem to your `Gemfile`:
 
-   ```bash
-   bundle add json_api_active_record_query_adapter
+```bash
+bundle install json_api_active_record_query_adapter
+```
 
 2. **Add the module to your controller:**
 
 ```
-  include JsonApiFilterAdapter
+include JsonApiFilterAdapter
 ```
 
 3. **Example to use the method that will process the data in the controller:**

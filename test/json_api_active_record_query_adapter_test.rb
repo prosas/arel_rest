@@ -1,6 +1,5 @@
 require "minitest/autorun"
 require 'json_api_active_record_query_adapter'
-require 'time'
 require 'active_support/all'
 require 'byebug'
 
@@ -57,21 +56,28 @@ class JsonApiFilterAdapterTest < Minitest::Test
   end
 
   def test_range_with_dates_hours_and_time_zone
-    Time.zone = 'America/Sao_Paulo'
+    JsonApiFilterAdapter.time_zone = ActiveSupport::TimeZone['America/Sao_Paulo']
 
     result = @_class.parse_filter_adapter({
-      "row.colum1" => "2024-09-06 00:00:00 -0300..2024-09-06 23:59:59 -0300"
+      "row.colum1" => "2024-09-10 00:00..2024-09-10 23:59"
     })
 
-    range_str = result[1]
-    range_dates = range_str.split('..').map { |date_str| Time.zone.parse(date_str) }
-  
-    expected = [
-      "row.colum1 BETWEEN ? AND ?",
-      range_dates.first, 
-      range_dates.last
-    ]
-  
-    assert_equal expected, ["row.colum1 BETWEEN ? AND ?", range_dates.first, range_dates.last]
+    query_between, start_date, end_date = result
+
+    assert_equal start_date.year, 2024
+    assert_equal start_date.month, 9
+    assert_equal start_date.day, 10
+    assert_equal start_date.hour, 0
+    assert_equal start_date.min, 0
+    assert_equal start_date.time_zone.utc_offset / 3600, -3
+
+    assert_equal end_date.year, 2024
+    assert_equal end_date.month, 9
+    assert_equal end_date.day, 10
+    assert_equal end_date.hour, 23
+    assert_equal end_date.min, 59
+    assert_equal end_date.time_zone.utc_offset / 3600, -3
+
+    assert_equal query_between, "row.colum1 BETWEEN ? AND ?"
   end
 end
