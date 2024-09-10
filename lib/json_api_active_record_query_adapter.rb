@@ -1,5 +1,4 @@
 # Biblioteca nativa do Ruby para lidar com parsing e formatação de datas e horas, como Time.parse
-require 'time'
 # TODO: Resolver para o caso de ordenação por colunas de tabelas associadas
 
 # Adpta objeto json para hash de consulta compativél com o active_record
@@ -15,6 +14,10 @@ require 'time'
 # TODO: Extrair para uma gem
 # TODO: Resolver para o caso de ordenação por colunas de tabelas associadas
 module JsonApiFilterAdapter
+  class << self
+    attr_accessor :time_zone
+  end
+
   VALUE = 1
   KEY = 0
   # Adpta objeto jsonvpara hash de consulta compativél com o active_record
@@ -23,29 +26,33 @@ module JsonApiFilterAdapter
   # >> adpter_from_json_api_to_active_record(object_json_api)
   # >> {"id": 1, "data": Range(Date.parse("01/01/2022"), Date.parse("31/01/2022"))}
   def parse_filter_adapter(data)
-    # data = data_order_formater data, params
-
     data_parsed = {}
     data.each do |parameter|
-      # verifica se valor do filtro é um range
       next unless parameter[VALUE].to_s.include?('..')
 
       first, last = parameter[VALUE].split('..')
+
       case parameter[VALUE]
-      when /^\d{4}-\d{2}-\d{2}..\d{4}-\d{2}-\d{2}$/ # somente com data
-        data_parsed[parameter[KEY]] = Range.new(Date.parse(first), Date.parse(last))
+      when /^\d{4}-\d{2}-\d{2}$/ # somente com data
+        data_parsed[parameter[KEY]] = Range.new(
+          Time.use_zone(JsonApiFilterAdapter.time_zone) { Time.zone.parse(first).beginning_of_day },
+          Time.use_zone(JsonApiFilterAdapter.time_zone) { Time.zone.parse(last).end_of_day }
+        )
       when /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}..\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/ # com data e hora
-        data_parsed[parameter[KEY]] = Range.new(Time.parse(first), Time.parse(last))
-      when /^\d+..\d+$/
-        data_parsed[parameter[KEY]] = Range.new(first.to_i, last.to_i)
-      when /^\d+.\d+..\d+.\d+$/
-        data_parsed[parameter[KEY]] = Range.new(first.to_d, last.to_d)
+        data_parsed[parameter[KEY]] = Range.new(
+          Time.use_zone(JsonApiFilterAdapter.time_zone) { Time.zone.parse(first) },
+          Time.use_zone(JsonApiFilterAdapter.time_zone) { Time.zone.parse(last) }
+        )
+      when /^\d{4}-\d{2}-\d{2} \d{2}:\d{2} \S+$/ # com data, hora e fuso horário
+        data_parsed[parameter[KEY]] = Range.new(
+          Time.use_zone(JsonApiFilterAdapter.time_zone) { Time.zone.parse(first) },
+          Time.use_zone(JsonApiFilterAdapter.time_zone) { Time.zone.parse(last) }
+        )
       end
     end
 
     data.merge!(data_parsed)
-
-    operator_parser_hash_to_array data
+    operator_parser_hash_to_array(data)
   end
 
   private

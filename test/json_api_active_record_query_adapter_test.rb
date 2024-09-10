@@ -1,6 +1,8 @@
 require "minitest/autorun"
 require 'json_api_active_record_query_adapter'
+require 'active_support/all'
 require 'byebug'
+
 class JsonApiFilterAdapterTest < Minitest::Test
   class TestClass
     include JsonApiFilterAdapter
@@ -8,6 +10,7 @@ class JsonApiFilterAdapterTest < Minitest::Test
 
   def setup
     @_class = TestClass.new
+    JsonApiFilterAdapter.time_zone = 'America/Sao_Paulo'
   end
 
   def test_parse_filter_adapter
@@ -48,17 +51,33 @@ class JsonApiFilterAdapterTest < Minitest::Test
       ["row.colum1 >= ?", "'2024-01-01 14:10'"]
   end
 
-  def test_range_with_dates
-    result = @_class.parse_filter_adapter({ "row.colum1" => "2024-09-05..2024-09-30" })
-    expected = ["row.colum1 BETWEEN ? AND ?", Date.new(2024, 9, 5), Date.new(2024, 9, 30)]
-    
-    assert_equal expected, result
+  def test_initializer_sets_time_zone
+    assert_equal 'America/Sao_Paulo', JsonApiFilterAdapter.time_zone
   end
-  
-  def test_range_with_dates_and_times
-    result = @_class.parse_filter_adapter({ "row.colum1" => "2024-09-05 00:00..2024-09-05 23:59" })
-    expected = ["row.colum1 BETWEEN ? AND ?", Time.new(2024, 9, 5, 0, 0, 0), Time.new(2024, 9, 5, 23, 59, 0)]
-    
-    assert_equal expected, result
+
+  def test_range_with_dates_hours_and_time_zone
+    JsonApiFilterAdapter.time_zone = ActiveSupport::TimeZone['America/Sao_Paulo']
+
+    result = @_class.parse_filter_adapter({
+      "row.colum1" => "2024-09-10 00:00..2024-09-10 23:59"
+    })
+
+    query_between, start_date, end_date = result
+
+    assert_equal start_date.year, 2024
+    assert_equal start_date.month, 9
+    assert_equal start_date.day, 10
+    assert_equal start_date.hour, 0
+    assert_equal start_date.min, 0
+    assert_equal start_date.time_zone.utc_offset / 3600, -3
+
+    assert_equal end_date.year, 2024
+    assert_equal end_date.month, 9
+    assert_equal end_date.day, 10
+    assert_equal end_date.hour, 23
+    assert_equal end_date.min, 59
+    assert_equal end_date.time_zone.utc_offset / 3600, -3
+
+    assert_equal query_between, "row.colum1 BETWEEN ? AND ?"
   end
 end

@@ -1,10 +1,10 @@
 Gem::Specification.new do |s|
   s.name        = "json_api_active_record_query_adapter"
-  s.version     = "1.2.5"
+  s.version     = "1.2.6"
   s.date        = "2023-04-19"
   s.summary     = "Syntax query definition and adapter for using with active record."
   s.description = "Syntax query definition and adapter for using with active record."
-  s.authors     = ["Lucas Hunter"]
+  s.authors     = ["Lucas Hunter, Luiz Filipe, Leonardo Baptista, Rafael C. Abreu"]
   s.email       = "ops@prosas.com.br"
   s.files       = ["lib/json_api_active_record_query_adapter.rb"]
   s.require_paths = ["lib"]
