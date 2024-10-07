@@ -37,6 +37,30 @@ class JsonApiFilterAdapterTest < Minitest::Test
 
   end
 
+  def test_parse_filter_adpater_v2_nested_or
+    assert_equal @_classV2.parse_filter_adapter_v2({
+      "and" => [
+        {attribute: "row.colum1", operator:"in", values: ["blue"]},
+        "or" => [
+          {attribute: "row.colum2", operator:"=", values: "black"},
+          {attribute: "row.colum2", operator:"=", values: "orange"}
+        ]
+      ]
+    }), ["row.colum1 IN (?) AND (row.colum2 = ? OR row.colum2 = ?)", ["blue"], "black", "orange"]
+  end
+
+  def test_parse_filter_adpater_v2_nested_and
+    assert_equal @_classV2.parse_filter_adapter_v2({
+      "or" => [
+        {attribute: "row.colum1", operator:"in", values: ["blue"]},
+        "and" => [
+          {attribute: "row.colum2", operator:"=", values: "black"},
+          {attribute: "row.colum2", operator:"=", values: "orange"}
+        ]
+      ]
+    }), ["row.colum1 IN (?) OR (row.colum2 = ? AND row.colum2 = ?)", ["blue"], "black", "orange"]
+  end
+
   def test_less_than_number_v2
     assert_equal @_classV2.parse_filter_adapter_v2({"and" => [{attribute: "row.colum1", operator: "<", values: 202}]}) ,
       ["row.colum1 < ?", 202]

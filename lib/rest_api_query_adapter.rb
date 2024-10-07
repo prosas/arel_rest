@@ -44,11 +44,11 @@ module RestApiQueryAdapter
   def query_builder(q)
     conector = q.keys[0]
     pair_query_string_and_values = q[conector].map do |query_obj|
-      if query_obj.keys.include?(:or)
-        template = "( :query )"
+      if query_obj.keys.map(&:to_sym).any?{|key| [:or,:and].include?(key)}
+        template = "(:query)"
         nested_query = query_builder(query_obj) # Recursive
         string = nested_query.shift
-        builded = [template.gsub(":query", string), nested_query]
+        builded = [template.gsub(":query", string)] + nested_query
       else
         builded = build_pair_query_string_and_values(query_obj)
       end
