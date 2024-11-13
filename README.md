@@ -22,6 +22,8 @@ bundle install json_api_active_record_query_adapter
 
 ```
 include JsonApiFilterAdapter
+OR
+include JsonApiFilterAdapter::V2
 ```
 
 3. **Example to use the method that will process the data in the controller:**
