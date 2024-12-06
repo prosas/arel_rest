@@ -7,6 +7,7 @@ module RestApiQueryAdapter
   require 'json_api_filter_adapter/in_operator'
   require 'json_api_filter_adapter/not_in_operator'
   require 'json_api_filter_adapter/in_range_of_operator'
+  require 'json_api_filter_adapter/contains_operator'
 
   TEMPLATE_OPERATORS = {
     "=" => JsonApiFilterAdapter::EqOperator,
@@ -17,13 +18,32 @@ module RestApiQueryAdapter
     "in" => JsonApiFilterAdapter::InOperator,
     "not_in" => JsonApiFilterAdapter::NotInOperator,
     ".." => JsonApiFilterAdapter::InRangeOfOperator,
+    "contains" => JsonApiFilterAdapter::ContainsOperator,
   }
   # Recevi object query and return array with
   # string query and value.
   # Ex: query object: {attribute: "a", operator:"=", values: [1]}
   # >> ["a = ?", [1]]
+
+  class OperatorNotFound < StandardError
+    attr_accessor :column
+
+    def initialize(column)
+      @column = column
+      super
+    end
+
+    def message
+      "Operator #{@column} not found"
+    end
+  end
+
   def build_pair_query_string_and_values(q)
-    TEMPLATE_OPERATORS[q[:operator].to_s].process(q)
+    operator = TEMPLATE_OPERATORS[q[:operator].to_s]
+
+    raise(OperatorNotFound, q[:operator].to_s) unless operator
+
+    operator.process(q)
   end
 
   # Recevi array of pairs string queries and values and join
@@ -42,7 +62,7 @@ module RestApiQueryAdapter
   end
 
   def query_builder(q)
-    conector = q.keys.map(&:to_sym).detect{|connector| [:or, :and].include?(connector)}
+    conector = q.keys.map(&:to_sym).detect{|connector| [:or, :and].include?(connector)}.to_s
     pair_query_string_and_values = q[conector].map do |query_obj|
       if query_obj.keys.map(&:to_sym).any?{|key| [:or,:and].include?(key)}
         template = "(:query)"
