@@ -20,6 +20,14 @@ class JsonApiFilterAdapterTest < Minitest::Test
     JsonApiFilterAdapter::V2.time_zone = 'America/Sao_Paulo'
   end
 
+  def test_parse_filter_adapter_v2_not_found_operator
+    assert_raises RestApiQueryAdapter::OperatorNotFound do
+      @_classV2.parse_filter_adapter_v2({
+        "and" => [{attribute: "row.colum1", operator:"not_exist_operator_xpto", values: [20]}]
+      })
+    end
+  end
+
   def test_parse_filter_adapter_v2
     assert_equal @_classV2.parse_filter_adapter_v2({
       "and" => [
@@ -69,6 +77,11 @@ class JsonApiFilterAdapterTest < Minitest::Test
   def test_less_than_string_v2
     assert_equal @_classV2.parse_filter_adapter_v2({"and" => [{attribute: "row.colum1", operator: "<", values: "'2024-01-01 14:10'"}]}),
       ["row.colum1 < ?", "'2024-01-01 14:10'"]
+  end
+
+  def test_contains_v2
+    assert_equal @_classV2.parse_filter_adapter_v2({"and" => [{attribute: "row.colum1", operator: "contains", values: "some things" }]}),
+      ["row.colum1 like ?", "%some things%"]
   end
 
   def test_lesser_equal_than_string_v2
