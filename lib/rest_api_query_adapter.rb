@@ -62,7 +62,8 @@ module RestApiQueryAdapter
   end
 
   def query_builder(q)
-    conector = q.keys.map(&:to_sym).detect{|connector| [:or, :and].include?(connector)}.to_s
+    q.symbolize_keys!
+    conector = q.keys.map(&:to_sym).detect{|connector| [:or, :and].include?(connector)}
     pair_query_string_and_values = q[conector].map do |query_obj|
       if query_obj.keys.map(&:to_sym).any?{|key| [:or,:and].include?(key)}
         template = "(:query)"
