@@ -1,16 +1,11 @@
 module JsonApiFilterAdapter
   class NotInOperator
     class << self
-      def process(q)
-        [template(q), q[:values]]
-      end
+      def process(query)
+        values = query[:values].dup.map{|value| value==('=null=') ? nil : value}
 
-      def template(q)
-        if q[:values].include?("=null=")
-          "(:attribute IS NOT NULL OR :attribute not in (?))".gsub(":attribute", q[:attribute])
-        else
-          ":attribute not in (?)".gsub(":attribute", q[:attribute])
-        end
+        table = Arel::Table.new(query[:attribute].split(".")[0])
+        table[query[:attribute].split(".")[1]].not_in(values)
       end
     end
   end

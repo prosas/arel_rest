@@ -1,12 +1,11 @@
 module JsonApiFilterAdapter
   class GtOperator
     class << self
-      def process(q)
-        [template(q), q[:values]]
-      end
+      def process(query)
+        table = Arel::Table.new(query[:attribute].split(".")[0])
+        column = query[:attribute].split(".")[1]
 
-      def template(q)
-        ":attribute > ?".gsub(":attribute", q[:attribute])
+        table[column].gt(query[:values])
       end
     end
   end

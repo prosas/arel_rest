@@ -1,9 +1,11 @@
 module JsonApiFilterAdapter
-  class EqOperator
+  class LteqOperator
     class << self
       def process(query)
         table = Arel::Table.new(query[:attribute].split(".")[0])
-        table[query[:attribute].split(".")[1]].eq(query[:values])
+        column = query[:attribute].split(".")[1]
+
+        table[column].lteq(query[:values])
       end
     end
   end
