@@ -1,4 +1,4 @@
-module JsonApiFilterAdapter
+module ArelRest::Predications
   class MatchesOperator
     class << self
       def process(query)

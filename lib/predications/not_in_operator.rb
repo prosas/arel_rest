@@ -1,4 +1,4 @@
-module JsonApiFilterAdapter
+module ArelRest::Predications
   class NotInOperator
     class << self
       def process(query)

@@ -1,25 +1,25 @@
 module ArelRest
   require 'active_record'
-	require 'json_api_filter_adapter/eq_operator'
-  require 'json_api_filter_adapter/gt_operator'
-  require 'json_api_filter_adapter/gteq_operator'
-  require 'json_api_filter_adapter/lt_operator'
-  require 'json_api_filter_adapter/lteq_operator'
-  require 'json_api_filter_adapter/in_operator'
-  require 'json_api_filter_adapter/not_in_operator'
-  require 'json_api_filter_adapter/between_operator'
-  require 'json_api_filter_adapter/matches_operator'
+	require 'predications/eq_operator'
+  require 'predications/gt_operator'
+  require 'predications/gteq_operator'
+  require 'predications/lt_operator'
+  require 'predications/lteq_operator'
+  require 'predications/in_operator'
+  require 'predications/not_in_operator'
+  require 'predications/between_operator'
+  require 'predications/matches_operator'
 
   TEMPLATE_OPERATORS = {
-    "eq" => JsonApiFilterAdapter::EqOperator,
-    "gt" => JsonApiFilterAdapter::GtOperator,
-    "gteq" => JsonApiFilterAdapter::GteqOperator,
-    "lt" => JsonApiFilterAdapter::LtOperator,
-    "lteq" => JsonApiFilterAdapter::LteqOperator,
-    "in" => JsonApiFilterAdapter::InOperator,
-    "not_in" => JsonApiFilterAdapter::NotInOperator,
-    "between" => JsonApiFilterAdapter::BetweenOperator,
-    "matches" => JsonApiFilterAdapter::MatchesOperator,
+    "eq" => Predications::EqOperator,
+    "gt" => Predications::GtOperator,
+    "gteq" => Predications::GteqOperator,
+    "lt" => Predications::LtOperator,
+    "lteq" => Predications::LteqOperator,
+    "in" => Predications::InOperator,
+    "not_in" => Predications::NotInOperator,
+    "between" => Predications::BetweenOperator,
+    "matches" => Predications::MatchesOperator,
   }
 
   class << self
