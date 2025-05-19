@@ -115,7 +115,7 @@ class ArelRestTest < Minitest::Test
   def test_range_with_dates_hours_and_time_zone_v2
     ArelRest.time_zone = ActiveSupport::TimeZone['America/Sao_Paulo']
     assert_equal @_classV2.parse_filter_to_arel({
-      "and" => [{ attribute: "row.colum1", operator:"between", values: ["2024-09-10 00:00", "2024-09-10 23:59"] }]
+      "and" => [{ attribute: "row.colum1", operator:"between", values: ["2024-09-10T00:00:00", "2024-09-10T23:59:00"] }]
     }).to_sql,
     "\"row\".\"colum1\" BETWEEN '2024-09-10 03:00:00' AND '2024-09-11 02:59:00'"
   end

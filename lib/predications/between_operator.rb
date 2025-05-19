@@ -15,12 +15,13 @@ module ArelRest::Predications
       private
 
       def transform_data_for_first(first)
+        # Try obtein date in format iso8601
         case first
         when /^\d{4}-\d{2}-\d{2}$/ # somente com data
           Time.use_zone(ArelRest.time_zone) { Time.zone.parse(first).beginning_of_day }
-        when /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/ # com data e hora
+        when /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/ # com data e hora
           Time.use_zone(ArelRest.time_zone) { Time.zone.parse(first) }
-        when /^\d{4}-\d{2}-\d{2} \d{2}:\d{2} \S+$/ # com data, hora e fuso horário
+        when /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})$/ # com data, hora e fuso horário
           Time.use_zone(ArelRest.time_zone) { Time.zone.parse(first) }
         else
           first
@@ -30,10 +31,10 @@ module ArelRest::Predications
       def transform_data_for_last(last)
         case last
         when /^\d{4}-\d{2}-\d{2}$/ # somente com data
-          Time.use_zone(ArelRest.time_zone) { Time.zone.parse(last).end_of_day }
-        when /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/ # com data e hora
+          Time.use_zone(ArelRest.time_zone) { Time.zone.parse(last).beginning_of_day }
+        when /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/ # com data e hora
           Time.use_zone(ArelRest.time_zone) { Time.zone.parse(last) }
-        when /^\d{4}-\d{2}-\d{2} \d{2}:\d{2} \S+$/ # com data, hora e fuso horário
+        when /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})$/ # com data, hora e fuso horário
           Time.use_zone(ArelRest.time_zone) { Time.zone.parse(last) }
         else
           last
