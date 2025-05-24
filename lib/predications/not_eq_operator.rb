@@ -1,12 +1,13 @@
 module ArelRest::Predications
-  class EqOperator
+  class NotEqOperator
     class << self
       def process(query)
         values = query[:values] == '=null=' ? nil : query[:values]
-
+        
         table = Arel::Table.new(query[:attribute].split(".")[0])
-        table[query[:attribute].split(".")[1]].eq(values)
+        column = query[:attribute].split(".")[1]
+        table[column].not_eq(values)
       end
     end
   end
-end
+end 

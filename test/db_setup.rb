@@ -19,5 +19,8 @@ ActiveRecord::Schema.define do
     t.timestamps
   end
 end
+
 # Example model
-class User < ActiveRecord::Base; end
+class User < ActiveRecord::Base
+  include ArelRest::Query
+end
