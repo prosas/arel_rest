@@ -1,4 +1,6 @@
 class OrderItem < ActiveRecord::Base
+  include ArelRest::Query
+  
   belongs_to :order
   belongs_to :product
   

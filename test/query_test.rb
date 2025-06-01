@@ -17,6 +17,26 @@ class QueryTest < Minitest::Test
     @alice = User.create!(name: nil, age: 22, created_at: '2024-01-04 13:00:00')
   end
 
+  def test_query
+    rest_query = {
+      "measures": "average",
+      "dimensions": "age",
+      "filters": {
+        "and" => [
+          { attribute: "users.age", operator: "between", values: [20, 26] }
+        ]
+      },
+      "timeDimensions":
+      {
+        "dimension": "created_at",
+        "dateRange": ["2015-01-01", "2015-12-31"],
+        "granularity": "DAY"
+      }
+    }
+    debugger
+    User.query(rest_query)
+  end
+
   def test_filter_users_by_name
     filter = {
       "and" => [

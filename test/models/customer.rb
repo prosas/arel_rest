@@ -1,4 +1,6 @@
 class Customer < ActiveRecord::Base
+  include ArelRest::Query
+  
   has_many :orders
   has_many :reviews
   

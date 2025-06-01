@@ -1,4 +1,6 @@
 class Review < ActiveRecord::Base
+  include ArelRest::Query
+  
   belongs_to :product
   belongs_to :customer
   
