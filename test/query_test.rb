@@ -3,6 +3,9 @@ require 'arel_rest'
 require 'active_support/all'
 require 'byebug'
 require_relative './db_setup'
+Dir[File.join(__dir__, './models', '*.rb')].sort.each do |file|
+  require_relative file
+end
 
 class QueryTest < Minitest::Test
 
@@ -15,26 +18,6 @@ class QueryTest < Minitest::Test
     @jane = User.create!(name: 'Jane Smith', age: 30, created_at: '2024-01-02 11:00:00')
     @bob = User.create!(name: 'Bob Johnson', age: 25, created_at: '2024-01-03 12:00:00')
     @alice = User.create!(name: nil, age: 22, created_at: '2024-01-04 13:00:00')
-  end
-
-  def test_query
-    rest_query = {
-      "measures": "average",
-      "dimensions": "age",
-      "filters": {
-        "and" => [
-          { attribute: "users.age", operator: "between", values: [20, 26] }
-        ]
-      },
-      "timeDimensions":
-      {
-        "dimension": "created_at",
-        "dateRange": ["2015-01-01", "2015-12-31"],
-        "granularity": "DAY"
-      }
-    }
-    debugger
-    User.query(rest_query)
   end
 
   def test_filter_users_by_name
