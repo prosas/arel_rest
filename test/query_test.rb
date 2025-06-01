@@ -8,16 +8,23 @@ Dir[File.join(__dir__, './models', '*.rb')].sort.each do |file|
 end
 
 class QueryTest < Minitest::Test
+  DatabaseCleaner.clean_with(:truncation)
 
   def setup
+    DatabaseCleaner.start
     ArelRest.time_zone = 'America/Sao_Paulo'
     
     # Create sample users for testing
-    User.delete_all
     @john = User.create!(name: 'John Doe', age: 25, created_at: '2024-01-01 10:00:00')
     @jane = User.create!(name: 'Jane Smith', age: 30, created_at: '2024-01-02 11:00:00')
     @bob = User.create!(name: 'Bob Johnson', age: 25, created_at: '2024-01-03 12:00:00')
     @alice = User.create!(name: nil, age: 22, created_at: '2024-01-04 13:00:00')
+  end
+
+  def teardown
+    # Clean up the database after each test
+    # then, whenever you need to clean the DB
+    DatabaseCleaner.clean
   end
 
   def test_filter_users_by_name

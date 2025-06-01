@@ -1,6 +1,9 @@
 require 'active_record'
 require 'sqlite3'
 require 'logger'
+require 'database_cleaner/active_record'
+
+DatabaseCleaner.strategy = :transaction
 
 # Enable logging (optional, helpful for debugging)
 ActiveRecord::Base.logger = Logger.new(STDOUT)

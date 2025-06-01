@@ -4,7 +4,7 @@ Minitest::TestTask.create(:test) do |t|
   t.libs << "test"
   t.libs << "lib"
   t.warning = false
-  t.test_globs = ["test/**/*_test.rb"]
+  t.test_globs = [(ENV['TEST'] || "test/**/*_test.rb")]
 end
 
 desc "Run tests"

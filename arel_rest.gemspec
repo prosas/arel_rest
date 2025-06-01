@@ -17,4 +17,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "sqlite3"
   s.add_development_dependency "minitest", [">= 5"]
   s.add_development_dependency "byebug", [">= 11"]
+  s.add_development_dependency "database_cleaner-active_record"
 end
