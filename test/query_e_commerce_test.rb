@@ -144,7 +144,57 @@ class QueryECommerceTest < Minitest::Test
 
   def test_count_metric
     arel_rest_query = {
-      "measures": "count",
+      "measures": "count.id",
+      "dimensions": ["category_id", "categories.name"],
+      "filters": {},
+      # "timeDimensions": [
+      #   {
+      #     "dimension": "stories.time",
+      #     "dateRange": ["2015-01-01", "2015-12-31"],
+      #     "granularity": "month"
+      #   }
+      # ],
+      # "limit": 100,
+      # "offset": 50,
+      "order": {
+        "categories.id": "asc"
+      },
+      "timezone": "America/Los_Angeles"
+    }
+    debugger
+    assert_equal 4, Product.query(arel_rest_query)
+  end
+
+  def test_sum_metric
+    arel_rest_query = {
+      "measures": "sum.price",
+      "dimensions": ["category_id", "categories.name"],
+      "filters": {
+        "and" => [
+          { attribute: "products.stock", operator: "gt", values: 49 }
+        ]
+      },
+      # "timeDimensions": [
+      #   {
+      #     "dimension": "stories.time",
+      #     "dateRange": ["2015-01-01", "2015-12-31"],
+      #     "granularity": "month"
+      #   }
+      # ],
+      # "limit": 100,
+      # "offset": 50,
+      "order": {
+        "categories.id": "asc"
+      },
+      "timezone": "America/Los_Angeles"
+    }
+    # debugger
+    assert_equal 4, Product.query(arel_rest_query)
+  end
+
+  def test_average_metric
+    arel_rest_query = {
+      "measures": "average.price",
       "dimensions": ["category_id", "categories.name"],
       "filters": {
         "and" => [
