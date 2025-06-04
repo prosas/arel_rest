@@ -30,13 +30,23 @@ module ArelRest
 	module Query
 		extend ActiveSupport::Concern
 		included do
+			WHITE_LIST_MENSURE_OP = {
+				"count" => :count,
+				"average" => :average,
+				"minimum" => :minimum,
+				"maximum" => :maximum,
+				"sum"   => :sum
+			}
+
 			def self.query(_rest_query)
+				mensure_op = _rest_query[:measures].split('.')[0]
+				column = _rest_query[:measures].split('.')[1]
+				
 				self
 				.filter(_rest_query[:filters])
-				# .group(_rest_query[:timeDimensions][:dimension])
-				.order(_rest_query[:order])
+				.order_by_dimensions(_rest_query[:order])
 				.group_by_dimensions(_rest_query[:dimensions])
-				.send(_rest_query[:measures])
+				.send(WHITE_LIST_MENSURE_OP[mensure_op], column)
 			end
 
 			def self.group_by_dimensions(query)
@@ -47,6 +57,18 @@ module ArelRest
 				.map{|path| build_join_hash path}
 
 				group(query).joins(paths)
+			end
+
+			def self.order_by_dimensions(query)
+				paths = query
+				# TODO: Estudar syntaxe p/ entender se essa extração de nome de tabela é correta
+				.keys
+				.map(&:to_s)
+				.map{|dimension| dimension.split('.')[0]}
+				.map{|table| find_path_to_relation(relationship_tree, table)}.compact
+				.map{|path| build_join_hash path}
+
+				order(query).joins(paths)
 			end
 
 			def self.relationship_tree
