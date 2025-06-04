@@ -34,14 +34,29 @@ module ArelRest
 				self
 				.filter(_rest_query[:filters])
 				# .group(_rest_query[:timeDimensions][:dimension])
-				.group(_rest_query[:dimensions])
+				.order(_rest_query[:order])
+				.group_by_dimensions(_rest_query[:dimensions])
 				.send(_rest_query[:measures])
 			end
+
+			def self.group_by_dimensions(query)
+				paths = query
+				# TODO: Estudar syntaxe p/ entender se essa extração de nome de tabela é correta
+				.map{|dimension| dimension.split('.')[0]}
+				.map{|table| find_path_to_relation(relationship_tree, table)}.compact
+				.map{|path| build_join_hash path}
+
+				group(query).joins(paths)
+			end
+
+			def self.relationship_tree
+				build_relationship_tree(self.name.constantize)
+			end
+
 	    def self.filter(query)
 	    	return where({}) unless query.present?
 	    	query_nodes = ArelRest::Parser.parse_filter_to_arel(query)
 	    	tables_from_arel_node = collect_tables_from_arel(query_nodes).reject{|table| table == self.table_name}
-	    	relationship_tree = build_relationship_tree(self.name.constantize)
 
 	    	paths = tables_from_arel_node.map do |table|
 	    		build_join_hash find_path_to_relation(relationship_tree, table)
