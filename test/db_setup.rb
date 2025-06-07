@@ -35,6 +35,9 @@ ActiveRecord::Schema.define do
     t.decimal :price, precision: 10, scale: 2, null: false
     t.integer :stock, null: false, default: 0
     t.references :category, foreign_key: true
+    t.date :created_date
+    t.integer :created_month
+    t.integer :created_year
     t.timestamps
   end
   add_index :products, :name
@@ -53,6 +56,9 @@ ActiveRecord::Schema.define do
     t.string :status, null: false, default: 'pending'
     t.decimal :total_amount, precision: 10, scale: 2
     t.text :shipping_address
+    t.date :created_date
+    t.integer :created_month
+    t.integer :created_year
     t.timestamps
   end
   add_index :orders, :status
@@ -62,6 +68,9 @@ ActiveRecord::Schema.define do
     t.references :product, null: false, foreign_key: true
     t.integer :quantity, null: false
     t.decimal :unit_price, precision: 10, scale: 2, null: false
+    t.date :created_date
+    t.integer :created_month
+    t.integer :created_year
     t.timestamps
   end
 
