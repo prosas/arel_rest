@@ -20,11 +20,12 @@ module ArelRest
 				.filter(_rest_query[:filters])
 				.order_by_dimensions(_rest_query[:order])
 				.group_by_dimensions(_rest_query[:dimensions])
-				.limit(_rest_query[:limit] || 100).offset(_rest_query[:offset] || 50)
+				.limit(_rest_query[:limit] || 100).offset(_rest_query[:offset] || 0)
 				.send(WHITE_LIST_MENSURE_OP[mensure_op], column)
 			end
 
 			def self.group_by_dimensions(query)
+				return group({}) unless query.present?
 				paths = query
 				# TODO: Estudar syntaxe p/ entender se essa extração de nome de tabela é correta
 				.map{|dimension| dimension.split('.')[0]}
@@ -35,6 +36,7 @@ module ArelRest
 			end
 
 			def self.order_by_dimensions(query)
+				return order({}) unless query.present?
 				paths = query
 				# TODO: Estudar syntaxe p/ entender se essa extração de nome de tabela é correta
 				.keys
