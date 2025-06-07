@@ -1,31 +1,5 @@
 require "active_support/concern"
 
-# {
-#   "measures": ["stories.count"],
-#   "dimensions": ["stories.category"],
-#   "filters": [
-#     {
-#       "member": "stories.isDraft",
-#       "operator": "equals",
-#       "values": ["No"]
-#     }
-#   ],
-#   "timeDimensions": [
-#     {
-#       "dimension": "stories.time",
-#       "dateRange": ["2015-01-01", "2015-12-31"],
-#       "granularity": "month"
-#     }
-#   ],
-#   "limit": 100,
-#   "offset": 50,
-#   "order": {
-#     "stories.time": "asc",
-#     "stories.count": "desc"
-#   },
-#   "timezone": "America/Los_Angeles"
-# }
-
 module ArelRest
 	module Query
 		extend ActiveSupport::Concern
@@ -41,11 +15,12 @@ module ArelRest
 			def self.query(_rest_query)
 				mensure_op = _rest_query[:measures].split('.')[0]
 				column = _rest_query[:measures].split('.')[1]
-				
+
 				self
 				.filter(_rest_query[:filters])
 				.order_by_dimensions(_rest_query[:order])
 				.group_by_dimensions(_rest_query[:dimensions])
+				.limit(_rest_query[:limit] || 100).offset(_rest_query[:offset] || 50)
 				.send(WHITE_LIST_MENSURE_OP[mensure_op], column)
 			end
 

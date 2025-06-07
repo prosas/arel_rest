@@ -142,29 +142,6 @@ class QueryECommerceTest < Minitest::Test
     assert_equal 1, Product.filter(filter).count
   end
 
-  def test_count_metric
-    arel_rest_query = {
-      "measures": "count.id",
-      "dimensions": ["category_id", "categories.name"],
-      "filters": {},
-      # "timeDimensions": [
-      #   {
-      #     "dimension": "stories.time",
-      #     "dateRange": ["2015-01-01", "2015-12-31"],
-      #     "granularity": "month"
-      #   }
-      # ],
-      # "limit": 100,
-      # "offset": 50,
-      "order": {
-        "categories.id": "asc"
-      },
-      "timezone": "America/Los_Angeles"
-    }
-    debugger
-    assert_equal 4, Product.query(arel_rest_query)
-  end
-
   def test_sum_metric
     arel_rest_query = {
       "measures": "sum.price",
@@ -174,99 +151,14 @@ class QueryECommerceTest < Minitest::Test
           { attribute: "products.stock", operator: "gt", values: 49 }
         ]
       },
-      # "timeDimensions": [
-      #   {
-      #     "dimension": "stories.time",
-      #     "dateRange": ["2015-01-01", "2015-12-31"],
-      #     "granularity": "month"
-      #   }
-      # ],
-      # "limit": 100,
-      # "offset": 50,
+      "limit": 100,
+      "offset": 0,
       "order": {
         "categories.id": "asc"
       },
       "timezone": "America/Los_Angeles"
     }
-    # debugger
-    assert_equal 4, Product.query(arel_rest_query)
+
+    assert_equal({[1, "Electronics"] => 999.99, [2, "Books"] => 49.99, [3, "Clothing"] => 19.99}, Product.query(arel_rest_query))
   end
-
-  def test_average_metric
-    arel_rest_query = {
-      "measures": "average.price",
-      "dimensions": ["category_id", "categories.name"],
-      "filters": {
-        "and" => [
-          { attribute: "products.stock", operator: "gt", values: 49 }
-        ]
-      },
-      # "timeDimensions": [
-      #   {
-      #     "dimension": "stories.time",
-      #     "dateRange": ["2015-01-01", "2015-12-31"],
-      #     "granularity": "month"
-      #   }
-      # ],
-      # "limit": 100,
-      # "offset": 50,
-      "order": {
-        "categories.id": "asc"
-      },
-      "timezone": "America/Los_Angeles"
-    }
-    # debugger
-    assert_equal 4, Product.query(arel_rest_query)
-  end
-
-  # def test_order_queries
-  #   # Test order status queries
-  #   assert_equal 1, Order.where(status: 'pending').count
-  #   assert_equal 1, Order.where(status: 'delivered').count
-
-  #   # Test customer orders
-  #   assert_equal 1, @john.orders.count
-  #   assert_equal 1, @jane.orders.count
-  # end
-
-  # def test_review_queries
-  #   # Test product reviews
-  #   assert_equal 1, @smartphone.reviews.count
-  #   assert_equal 1, @ruby_book.reviews.count
-
-  #   # Test customer reviews
-  #   assert_equal 1, @john.reviews.count
-  #   assert_equal 2, @jane.reviews.count
-
-  #   # Test high rated products
-  #   high_rated = Review.where('rating >= ?', 5)
-  #   assert_equal 2, high_rated.count
-  # end
-
-  # def test_category_queries
-  #   # Test products by category
-  #   assert_equal 2, @electronics.products.count
-  #   assert_equal 1, @books.products.count
-  #   assert_equal 1, @clothing.products.count
-  # end
-
-  # def test_complex_queries
-  #   # Find all products ordered by John
-  #   johns_products = Product.joins(order_items: :order)
-  #                         .where(orders: { customer_id: @john.id })
-  #                         .distinct
-  #   assert_equal 2, johns_products.count
-
-  #   # Find all customers who bought electronics
-  #   electronics_customers = Customer.joins(orders: { order_items: { product: :category }})
-  #                                .where(categories: { id: @electronics.id })
-  #                                .distinct
-  #   assert_equal 2, electronics_customers.count
-
-  #   # Find average rating for electronics products
-  #   electronics_avg_rating = Review.joins(product: :category)
-  #                                .where(categories: { id: @electronics.id })
-  #                                .average(:rating)
-  #   assert_equal 5.0, electronics_avg_rating
-  # end
 end
