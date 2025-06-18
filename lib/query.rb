@@ -60,7 +60,6 @@ module ArelRest
 	    	paths = tables_from_arel_node.map do |table|
 	    		build_join_hash find_path_to_relation(relationship_tree, table)
 	    	end
-
 	    	where(query_nodes).joins(paths)
 	    end
 
@@ -108,6 +107,8 @@ module ArelRest
 			end
 
 			# Recebe um nó(Arel::Node) e busca o nome de todas as tabelas a partir desse nó
+			# TODO: Talvez seja mais fácil obter toda a expressão e obter todas as tabelas a partir
+			# da string
 			def self.collect_tables_from_arel(node, tables = Set.new)
 			  return tables unless node.is_a?(Arel::Nodes::Node) || node.is_a?(Arel::Attributes::Attribute)
 
@@ -116,11 +117,12 @@ module ArelRest
 			    tables << node.relation.name.to_s
 			  end
 
-			  # Percorre children, expressions, left, right, etc
+			  # Percorre children, expressions, left, right, grouping, etc
 			  children = []
 			  children += node.children if node.respond_to?(:children)
 			  children << node.left if node.respond_to?(:left) && node.left
 			  children << node.right if node.respond_to?(:right) && node.right
+			  children << node.expr if node.respond_to?(:expr) && node.expr
 			  children += node.expressions if node.respond_to?(:expressions)
 
 			  children.compact.each do |child|

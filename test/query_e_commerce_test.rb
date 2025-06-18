@@ -169,6 +169,17 @@ class QueryECommerceTest < Minitest::Test
     assert_equal 1, Product.filter(filter).count
   end
 
+  def test_filter_production_with_or_node
+    filter = {
+      "or" => [
+        { attribute: "categories.name", operator: "eq", values: "Electronics" },
+        { attribute: "products.price", operator: "gt", values: 2000.0 }
+      ]
+    }
+    
+    assert_equal 2, Product.filter(filter).count
+  end
+
   def test_sum_metric
     arel_rest_query = {
       "measures": "sum.price",
