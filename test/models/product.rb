@@ -1,6 +1,19 @@
 class Product < ActiveRecord::Base
   include ArelRest::Query
   
+  schema do
+    {
+      'Product': {
+        category: {},
+        orders: {
+          "Order": {
+            customer: {}
+          }
+        }
+      }
+    }
+  end
+
   belongs_to :category
   has_many :order_items
   has_many :orders, through: :order_items

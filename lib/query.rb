@@ -12,6 +12,12 @@ module ArelRest
 				"sum"   => :sum
 			}
 
+			@relationship_tree = {}
+
+			def self.schema
+				@relationship_tree = yield
+			end
+
 			def self.query(_rest_query)
 				mensure_op = _rest_query[:measures].split('.')[0]
 				column = _rest_query[:measures].split('.')[1]
@@ -49,7 +55,8 @@ module ArelRest
 			end
 
 			def self.relationship_tree
-				build_relationship_tree(self.name.constantize)
+				@relationship_tree
+				# DESCONTINUADO: build_relationship_tree(self.name.constantize)
 			end
 
 	    def self.filter(query)
@@ -63,7 +70,8 @@ module ArelRest
 	    	where(query_nodes).joins(paths)
 	    end
 
-	    # Constrói árvore de relacionamentos a partir de um model usando DFS(Busca por profundidade)
+	    # Constroi árvore de relacionamentos a partir de um model usando DFS(Busca por profundidade)
+	    # DESCONTINUADO: Fazer uma busca exaustíva é computacionamente demorado. No lugar de fazer essa pesquisa o client deverá definir qual é o esquema de pesquisa das relações.
 			def self.build_relationship_tree(model, visited = Set.new)
 			  return if visited.include?(model)
 			  visited.add(model)
@@ -74,7 +82,7 @@ module ArelRest
 			    begin
 			      assoc_model = assoc.klass
 			    rescue NameError
-			      next
+			    	next
 			    end
 
 			    next if visited.include?(assoc_model)
@@ -102,6 +110,7 @@ module ArelRest
 
 			# Converte caminho [:posts, :comments] em hash encadeado { posts: :comments }
 			def self.build_join_hash(path)
+				path ||= []
 			  join_path = path.select.with_index { |_, i| i.odd? }
 			  join_path.reverse.reduce { |acc, key| { key => acc } }
 			end
