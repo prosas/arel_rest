@@ -1,5 +1,5 @@
 require "active_support/concern"
-
+#TODO: Criar uma forma de checar a syntax dos consultas. Ex: Não aceitar dimenssões sem <table_name>.<column>
 module ArelRest
 	module Query
 		extend ActiveSupport::Concern
@@ -99,7 +99,7 @@ module ArelRest
 			  tree.each do |model_name, associations|
 			    associations.each do |assoc_name, subtree|
 			      path_with_assoc = current_path + [model_name, assoc_name]
-			      return path_with_assoc + [subtree.keys.first] if (assoc_name.to_s.singularize.camelize.constantize.table_name == target_relation.to_s)
+			      return path_with_assoc + [subtree.keys.first] if (model_name.to_s.constantize.reflect_on_association(assoc_name).class_name == target_relation.singularize.capitalize.constantize.to_s)
 
 			      result = find_path_to_relation(subtree, target_relation, path_with_assoc)
 			      return result if result
