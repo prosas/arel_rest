@@ -4,7 +4,9 @@ class Product < ActiveRecord::Base
   schema do
     {
       'Product': {
-        category: {},
+        category: {
+          'Category': {}
+        },
         orders: {
           "Order": {
             customer: {}

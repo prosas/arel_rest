@@ -30,6 +30,17 @@ module ArelRest
 				.send(WHITE_LIST_MENSURE_OP[mensure_op], column)
 			end
 
+	    def self.filter(query)
+	    	return where({}) unless query.present?
+	    	query_nodes = ArelRest::Parser.parse_filter_to_arel(query)
+	    	tables_from_arel_node = collect_tables_from_arel(query_nodes).reject{|table| table == self.table_name}
+
+	    	paths = tables_from_arel_node.map do |table|
+	    		build_join_hash find_path_to_relation(relationship_tree, table)
+	    	end
+	    	where(query_nodes).joins(paths)
+	    end
+
 			def self.group_by_dimensions(query)
 				return group({}) unless query.present?
 				paths = query
@@ -55,20 +66,11 @@ module ArelRest
 			end
 
 			def self.relationship_tree
+				# debugger
 				@relationship_tree
 				# DESCONTINUADO: build_relationship_tree(self.name.constantize)
 			end
 
-	    def self.filter(query)
-	    	return where({}) unless query.present?
-	    	query_nodes = ArelRest::Parser.parse_filter_to_arel(query)
-	    	tables_from_arel_node = collect_tables_from_arel(query_nodes).reject{|table| table == self.table_name}
-
-	    	paths = tables_from_arel_node.map do |table|
-	    		build_join_hash find_path_to_relation(relationship_tree, table)
-	    	end
-	    	where(query_nodes).joins(paths)
-	    end
 
 	    # Constroi árvore de relacionamentos a partir de um model usando DFS(Busca por profundidade)
 	    # DESCONTINUADO: Fazer uma busca exaustíva é computacionamente demorado. No lugar de fazer essa pesquisa o client deverá definir qual é o esquema de pesquisa das relações.
@@ -95,13 +97,14 @@ module ArelRest
 			end
 
 			# Busca o caminho até uma associação específica (ex: :comments)
-			def self.find_path_to_relation(tree, target_relation, current_path = [])
+			def self.find_path_to_relation(tree, target_table, current_path = [])
 			  tree.each do |model_name, associations|
 			    associations.each do |assoc_name, subtree|
+            table_name_assoc = model_name.to_s.constantize.reflect_on_association(assoc_name).table_name
 			      path_with_assoc = current_path + [model_name, assoc_name]
-			      return path_with_assoc + [subtree.keys.first] if (model_name.to_s.constantize.reflect_on_association(assoc_name).class_name == target_relation.singularize.capitalize.constantize.to_s)
+			      return path_with_assoc + [subtree.keys.first] if (table_name_assoc == target_table)
 
-			      result = find_path_to_relation(subtree, target_relation, path_with_assoc)
+			      result = find_path_to_relation(subtree, target_table, path_with_assoc)
 			      return result if result
 			    end
 			  end
