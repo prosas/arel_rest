@@ -31,10 +31,10 @@ module ArelRest
 					_rest_query[:dimensions] ? method_chain.group_by_dimensions(_rest_query[:dimensions]) :  method_chain
 				end
 				.then do |method_chain| 
-					_rest_query[:size] ? method_chain.limit(_rest_query[:size] || 100) :  method_chain
+					_rest_query[:page] ? method_chain.page(_rest_query[:page]) :  method_chain.page(0)
 				end
 				.then do |method_chain| 
-					_rest_query[:page] ? method_chain.offset(_rest_query[:page] || 0) :  method_chain
+					_rest_query[:size] ? method_chain.per(_rest_query[:size]) :  method_chain.per(100)
 				end
 				.then do |method_chain|
 					if _rest_query[:measures]
