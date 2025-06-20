@@ -19,15 +19,32 @@ module ArelRest
 			end
 
 			def self.query(_rest_query)
-				mensure_op = _rest_query[:measures].split('.')[0]
-				column = _rest_query[:measures].split('.')[1]
-
+				# Conditional methods chain
 				self
-				.filter(_rest_query[:filters])
-				.order_by_dimensions(_rest_query[:order])
-				.group_by_dimensions(_rest_query[:dimensions])
-				.limit(_rest_query[:limit] || 100).offset(_rest_query[:offset] || 0)
-				.send(WHITE_LIST_MENSURE_OP[mensure_op], column)
+				.then do |method_chain| 
+					_rest_query[:filters] ? method_chain.filter(_rest_query[:filters]) :  method_chain
+				end
+				.then do |method_chain| 
+					_rest_query[:sort] ? method_chain.order_by_dimensions(_rest_query[:sort]) :  method_chain
+				end
+				.then do |method_chain| 
+					_rest_query[:dimensions] ? method_chain.group_by_dimensions(_rest_query[:dimensions]) :  method_chain
+				end
+				.then do |method_chain| 
+					_rest_query[:size] ? method_chain.limit(_rest_query[:size] || 100) :  method_chain
+				end
+				.then do |method_chain| 
+					_rest_query[:page] ? method_chain.offset(_rest_query[:page] || 0) :  method_chain
+				end
+				.then do |method_chain|
+					if _rest_query[:measures]
+						mensure_op = _rest_query[:measures].split('.')[0]
+						column = _rest_query[:measures].split('.')[1]
+						method_chain.send(WHITE_LIST_MENSURE_OP[mensure_op], column)
+					else
+						method_chain
+					end
+				end
 			end
 
 			def self.filter(query)

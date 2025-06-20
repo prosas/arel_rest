@@ -157,6 +157,10 @@ class QueryECommerceTest < Minitest::Test
     DatabaseCleaner.clean
   end
 
+  def test_empty_query_params
+    assert_equal 4, Product.query({}).count
+  end
+
   def test_filter_production
     filter = {
       "and" => [
@@ -189,9 +193,9 @@ class QueryECommerceTest < Minitest::Test
           { attribute: "products.stock", operator: "gt", values: 49 }
         ]
       },
-      "limit": 100,
-      "offset": 0,
-      "order": {
+      "size": 100,
+      "page": 0,
+      "sort": {
         "categories.id": "asc"
       },
       "timezone": "America/Los_Angeles"
@@ -204,7 +208,7 @@ class QueryECommerceTest < Minitest::Test
     query = {
       "measures": "count.id",
       "dimensions": ["products.created_month", "products.created_year"],
-      "order": {"products.created_year": "asc", "products.created_month": "asc"}
+      "sort": {"products.created_year": "asc", "products.created_month": "asc"}
     }
     result = Product.query(query)
     assert_equal({[1, 2024] => 2, [2, 2024] => 1, [3, 2024] => 1}, result)
@@ -214,7 +218,7 @@ class QueryECommerceTest < Minitest::Test
     query = {
       "measures": "average.price",
       "dimensions": ["products.created_year"],
-      "order": {"products.created_year": "asc"}
+      "sort": {"products.created_year": "asc"}
     }
     result = Product.query(query)
     expected_avg = (999.99 + 1499.99 + 49.99 + 19.99) / 4.0
@@ -225,7 +229,7 @@ class QueryECommerceTest < Minitest::Test
     query = {
       "measures": "minimum.price",
       "dimensions": ["products.created_month", "products.created_year"],
-      "order": {"products.created_year": "asc", "products.created_month": "asc"}
+      "sort": {"products.created_year": "asc", "products.created_month": "asc"}
     }
     result = Product.query(query)
     assert_equal 49.99, result[[1, 2024]]
@@ -237,7 +241,7 @@ class QueryECommerceTest < Minitest::Test
     query = {
       "measures": "maximum.price",
       "dimensions": ["products.created_month", "products.created_year"],
-      "order": {"products.created_year": "asc", "products.created_month": "asc"}
+      "sort": {"products.created_year": "asc", "products.created_month": "asc"}
     }
 
     result = Product.query(query)
@@ -250,7 +254,7 @@ class QueryECommerceTest < Minitest::Test
     query = {
       "measures": "sum.price",
       "dimensions": ["products.created_month", "products.created_year"],
-      "order": {"products.created_year": "asc", "products.created_month": "asc"}
+      "sort": {"products.created_year": "asc", "products.created_month": "asc"}
     }
     result = Product.query(query)
     assert_equal 1049.98, result[[1, 2024]] # 999.99 + 49.99
