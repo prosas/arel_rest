@@ -4,8 +4,8 @@ Gem::Specification.new do |s|
   s.date        = "2023-04-19"
   s.summary     = "A lightweight RESTful interface for building ActiveRecord queries through Arel."
   s.description = "A lightweight RESTful interface for building ActiveRecord queries through Arel."
-  s.authors     = ["Lucas Hunter, Luiz Filipe, Leonardo Baptista, Rafael C. Abreu"]
-  s.email       = "ops@prosas.com.br"
+  s.authors     = ["Luiz Filipe, Lucas Hunter, Leonardo Baptista, Rafael C. Abreu"]
+  s.email       = "luizfilipeneves@gmail.com"
   s.files       = ["lib/arel_rest.rb"]
   s.require_paths = ["lib"]
   s.homepage    = "https://github.com/luizfilipecosta/arel_rest"
