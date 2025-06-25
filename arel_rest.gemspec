@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = "arel_rest"
-  s.version     = "1.0.0"
+  s.version     = "1.1.0"
   s.date        = "2023-04-19"
   s.summary     = "REST API interface for building ActiveRecord queries."
   s.description = "Provides a simple REST API interface for dynamically constructing SQL queries using ActiveRecord. Expose powerful query capabilities to client applications while maintaining full control over query logic and security."
@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.metadata['allowed_push_host'] = 'https://rubygems.org'
 
   s.required_ruby_version = '>= 2.7.0'
-  s.add_runtime_dependency "activesupport", ["~> 6"]
+  s.add_runtime_dependency "activesupport", [">= 6"]
   s.add_development_dependency "rake", ["~> 13"]
   s.add_development_dependency "sqlite3", ["~> 2"]
   s.add_development_dependency "minitest", ["~> 5"]

@@ -9,6 +9,7 @@ require 'predications/not_in_operator'
 require 'predications/between_operator'
 require 'predications/matches_operator'
 require 'predications/does_not_match_operator'
+require 'predications/order_operator'
 
 module ArelRest
 	class Parser

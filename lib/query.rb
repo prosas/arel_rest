@@ -30,11 +30,11 @@ module ArelRest
 				.then do |method_chain| 
 					_rest_query[:dimensions] ? method_chain.group_by_dimensions(_rest_query[:dimensions]) :  method_chain
 				end
-				.then do |method_chain| 
-					_rest_query[:page] ? method_chain.page(_rest_query[:page]) :  method_chain.page(0)
+				.then do |method_chain|
+					_rest_query[:page] ? method_chain.offset(_rest_query[:page]) :  method_chain.offset(0)
 				end
-				.then do |method_chain| 
-					_rest_query[:size] ? method_chain.per(_rest_query[:size]) :  method_chain.per(100)
+				.then do |method_chain|
+					_rest_query[:size] ? method_chain.limit(_rest_query[:size]) :  method_chain.limit(100)
 				end
 				.then do |method_chain|
 					if _rest_query[:measures]
@@ -79,7 +79,13 @@ module ArelRest
 				.map{|table| find_path_to_relation(relationship_tree, table)}.compact
 				.map{|path| build_join_hash path}
 
-				order(query).joins(paths)
+				order(
+					ArelRest::Predications::OrderOperator
+					.process({
+						attribute: query.keys.first.to_s,
+						values: query.values.first
+					})
+					).joins(paths)
 			end
 
 			def self.relationship_tree
