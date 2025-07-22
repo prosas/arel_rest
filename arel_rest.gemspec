@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   # s.metadata['allowed_push_host'] = 'https://rubygems.org'
 
   s.required_ruby_version = '>= 2.7.0'
-  s.add_runtime_dependency "activesupport", [">= 6"]
+  s.add_runtime_dependency "activesupport", ">= 6.0", "< 9.0"
   s.add_development_dependency "rake", ["~> 13"]
   s.add_development_dependency "sqlite3", ["~> 2"]
   s.add_development_dependency "minitest", ["~> 5"]
