@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.homepage    = "https://github.com/luizfilipecosta/arel_rest"
   s.license     = "MIT"
-  s.metadata['allowed_push_host'] = 'https://rubygems.org'
+  # s.metadata['allowed_push_host'] = 'https://rubygems.org'
 
   s.required_ruby_version = '>= 2.7.0'
   s.add_runtime_dependency "activesupport", ["~> 6", "~> 7", "~> 8"]
