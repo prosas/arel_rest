@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = "arel_rest"
-  s.version     = "1.2.0"
+  s.version     = "1.2.1"
   s.date        = "2023-04-19"
   s.summary     = "REST API interface for building ActiveRecord queries."
   s.description = "Provides a simple REST API interface for dynamically constructing SQL queries using ActiveRecord. Expose powerful query capabilities to client applications while maintaining full control over query logic and security."
