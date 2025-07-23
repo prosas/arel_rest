@@ -1,12 +1,14 @@
 Gem::Specification.new do |s|
   s.name        = "arel_rest"
-  s.version     = "1.2.1"
+  s.version     = "1.2.2"
   s.date        = "2023-04-19"
   s.summary     = "REST API interface for building ActiveRecord queries."
   s.description = "Provides a simple REST API interface for dynamically constructing SQL queries using ActiveRecord. Expose powerful query capabilities to client applications while maintaining full control over query logic and security."
   s.authors     = ["Luiz Filipe, Lucas Hunter, Leonardo Baptista, Rafael C. Abreu"]
   s.email       = "luizfilipeneves@gmail.com"
-  s.files       = ["lib/arel_rest.rb"]
+  s.files = Dir[
+    '{lib}/**/*',
+  ]
   s.require_paths = ["lib"]
   s.homepage    = "https://github.com/luizfilipecosta/arel_rest"
   s.license     = "MIT"
