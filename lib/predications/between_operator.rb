@@ -6,38 +6,19 @@ module ArelRest::Predications
         column = query[:attribute].split(".")[1]
 
         range = Range.new(
-          transform_data_for_first(query[:values][0]),
-          transform_data_for_last(query[:values][1])
+          try_transform_date(query[:values][0]),
+          try_transform_date(query[:values][1])
           )
         table[column].between(range)
       end
 
       private
 
-      def transform_data_for_first(first)
-        # Try obtein date in format iso8601
-        case first
-        when /^\d{4}-\d{2}-\d{2}$/ # somente com data
-          Time.use_zone(ArelRest.time_zone) { Time.zone.parse(first).beginning_of_day }
-        when /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/ # com data e hora
-          Time.use_zone(ArelRest.time_zone) { Time.zone.parse(first) }
-        when /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})$/ # com data, hora e fuso horário
-          Time.use_zone(ArelRest.time_zone) { Time.zone.parse(first) }
-        else
-          first
-        end
-      end
-
-      def transform_data_for_last(last)
-        case last
-        when /^\d{4}-\d{2}-\d{2}$/ # somente com data
-          Time.use_zone(ArelRest.time_zone) { Time.zone.parse(last).beginning_of_day }
-        when /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/ # com data e hora
-          Time.use_zone(ArelRest.time_zone) { Time.zone.parse(last) }
-        when /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|[+-]\d{2}:\d{2})$/ # com data, hora e fuso horário
-          Time.use_zone(ArelRest.time_zone) { Time.zone.parse(last) }
-        else
-          last
+      def try_transform_date(date)
+        begin
+          Time.use_zone(ArelRest.time_zone) { Time.parse(date)}
+        rescue StandardError => e
+          date
         end
       end
 
